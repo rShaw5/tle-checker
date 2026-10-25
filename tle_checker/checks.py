@@ -29,3 +29,18 @@ def check_checksum(record: Record) -> str | None:
         elif int(found) != expected:
             problems.append(f"{label} checksum digit is {found} but the digits add up to {expected}")
     return "; ".join(problems) or None
+
+
+def check_pairing(record: Record) -> str | None:
+    """Line 1 starts "1 ", line 2 starts "2 ", and both carry the same catalog number."""
+    if record.problem or not record.line1 or not record.line2:
+        return None
+    problems = []
+    if not record.line1.startswith("1 "):
+        problems.append('line 1 must start with "1 "')
+    if not record.line2.startswith("2 "):
+        problems.append('line 2 must start with "2 "')
+    cat1, cat2 = record.line1[2:7].strip(), record.line2[2:7].strip()
+    if cat1 != cat2:
+        problems.append(f"line 1 has catalog number {cat1!r} but line 2 has {cat2!r}")
+    return "; ".join(problems) or None

@@ -75,3 +75,7 @@ python3 -m tle_checker data/celestrak-active-<date>.tle --csv flagged.csv
 - These fields aren't checked: classification, international designator, drag terms, element set number and revolution number.
 - A 2-line file whose first line starts with `1 ` or `2 ` and is really a name would be misread.
 - In the CSV, names that start with `=`, `+`, `-` or `@` get a leading apostrophe so spreadsheets don't run them as formulas.
+
+## About the author
+
+Built by Robin Shaw, a backend engineer. More of my work is on [my portfolio](https://rshaw5.github.io) and [GitHub](https://github.com/rShaw5), and the best way to reach me is [LinkedIn](https://www.linkedin.com/in/rshaw5/).

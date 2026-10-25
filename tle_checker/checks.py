@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+from datetime import datetime
 
 from tle_checker.tle import LINE_LENGTH, Fields, Record, line_checksum, parse_fields
 
@@ -86,3 +87,33 @@ def check_orbit(f: Fields) -> str | None:
         return (f"perigee altitude is {altitude:.1f} km, below the Earth's surface "
                 f"(mean motion {f.mean_motion:g} rev/day, eccentricity {f.eccentricity:g})")
     return None
+
+
+def check_stale(f: Fields, now: datetime, max_age_days: float) -> str | None:
+    """The element set's epoch must not be older than max_age_days at the time `now`."""
+    age_days = (now - f.epoch).total_seconds() / 86400
+    if age_days > max_age_days:
+        return (f"epoch {f.epoch:%Y-%m-%d} is {age_days:.1f} days old, "
+                f"older than the {max_age_days:g}-day limit")
+    return None
+
+
+def check_duplicates(records: list[Record]) -> dict[int, str]:
+    """Catalog numbers that appear more than once with different element lines.
+
+    Returns {index into records: reason} for every copy. Exact repeats are not
+    flagged. Rows that fail the malformed check are left out of the comparison.
+    """
+    by_catalog: dict[str, list[int]] = {}
+    for i, record in enumerate(records):
+        if check_malformed(record) is None:
+            by_catalog.setdefault(record.catalog, []).append(i)
+    flags: dict[int, str] = {}
+    for catalog, indexes in by_catalog.items():
+        versions = {(records[i].line1.rstrip(), records[i].line2.rstrip()) for i in indexes}
+        if len(versions) > 1:
+            reason = (f"catalog number {catalog} appears {len(indexes)} times "
+                      f"with {len(versions)} different sets of elements")
+            for i in indexes:
+                flags[i] = reason
+    return flags

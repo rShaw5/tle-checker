@@ -28,7 +28,7 @@ class StaleCheckTest(unittest.TestCase):
     def test_reason_gives_epoch_age_and_limit(self):
         reason = check_stale(iss_fields(), day(2008, 12, 1), 30)
         self.assertIn("2008-09-20", reason)
-        self.assertIn("72", reason)  # about 72.5 days old
+        self.assertIn("71.5", reason)  # 71.5 days old
         self.assertIn("30", reason)
 
     def test_limit_is_configurable(self):
